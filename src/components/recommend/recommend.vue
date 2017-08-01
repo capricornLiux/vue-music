@@ -2,7 +2,24 @@
   <div class="recommend">
     <div class="recommend-content">
       <!--轮播-->
-      <div class="slider-wrapper"></div>
+      <div class="slider-wrapper" v-if="recommends.length">
+
+        <!--使用slider组件-->
+        <slider>
+          <!--放在插槽中的内容-->
+          <div v-for="item in recommends">
+            <!--遍历轮播图的数据-->
+            <a href="item.linkUrl">
+              <img :src="item.picUrl" alt="">
+            </a>
+            <!--遍历轮播图的数据结束-->
+          </div>
+          <!--放在插槽中的内容结束-->
+
+        </slider>
+        <!--使用slider组件结束-->
+
+      </div>
       <!--轮播结束-->
 
       <!--推荐列表-->
@@ -19,7 +36,23 @@
   import {getRecommend} from 'api/recommend.js'
   import {ERR_OK} from 'api/config.js'
 
+  // 引入slider组件
+  import Slider from 'base/slider/slider.vue'
+  // 这里有一个疑问? 为什么slider.vue没有export的情况下也可以使用呢?
+  // todo
+
   export default {
+
+    data () {
+      return {
+        recommends: []
+      }
+    },
+
+    components: {
+      Slider
+    },
+
     // 声明周期钩子函数
     created () {
       this._getRecommend()
@@ -30,7 +63,8 @@
       _getRecommend () {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res)
+//            console.log(res)
+            this.recommends = res.data.slider
           }
         })
       }

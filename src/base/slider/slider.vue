@@ -7,6 +7,7 @@
     </div>
 
     <div class="dots">
+      <span class="dot" v-for="(item,index) in dots" :class="{active: currentPageIndex === index}"></span>
 
     </div>
   </div>
@@ -16,6 +17,13 @@
   import BScroll from 'better-scroll'
   import {addClass} from 'common/js/dom.js'
   export default {
+    data () {
+      return {
+        // indicators
+        dots: [],
+        currentPageIndex: 0
+      }
+    },
     // 调用者给定的轮播器属性
     props: {
       // 是否支持轮播
@@ -37,7 +45,13 @@
       // 保证dom成功渲染, 20ms, 浏览器17ms一次
       setTimeout(() => {
         this._setSliderWidth()
+        // 和children长度保持一致
+        this._initDots()
         this._initSlider()
+
+        if (this.autoPlay) {
+          this._play()
+        }
       }, 20)
     },
 
@@ -60,19 +74,45 @@
         }
         this.$refs.sliderGroup.style.width = width + 'px'
       },
+      _initDots () {
+        this.dots = new Array(this.children.length)
+      },
+
       // 初始化slider
       _initSlider () {
         this.slider = new BScroll(this.$refs.slider, {
           scrollX: true,
           scrollY: false,
           click: true,
-          momentum: true,
-          snap: false,
-          snapLoop: false,
+          momentum: false,
+          snap: true,
+          snapLoop: this.loop,
           snapThreshold: 0.5,
           snapSpeed: 500
+        })
+        this.slider.on('scrollEnd', () => {
+          let pageIndex = this.slider.getCurrentPage().pageX
+          if (this.loop) {
+            pageIndex = pageIndex - 1
+          }
+          this.currentPageIndex = pageIndex
+
+          if (this.autoPlay) {
+            clearTimeout(this.timer)
+            this._play()
+          }
+        })
+      },
+
+      // 自动播放
+      _play () {
+        let pageIndex = this.currentPageIndex + 1
+        if (this.loop) {
+          pageIndex += 1
         }
-        )
+        this.timer = setTimeout(() => {
+          this.slider.goToPage(pageIndex, 0, 500)
+        }, this.interval)
       }
     }
   }

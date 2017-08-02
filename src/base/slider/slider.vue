@@ -66,6 +66,7 @@
 
     // destroyed hook
     destroyed () {
+//      console.log('slider destoryed')
       clearTimeout(this.timer)
     },
 

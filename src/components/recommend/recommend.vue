@@ -33,7 +33,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {getRecommend} from 'api/recommend.js'
+  import {getRecommend, getDiscList} from 'api/recommend.js'
   import {ERR_OK} from 'api/config.js'
 
   // 引入slider组件
@@ -56,6 +56,7 @@
     // 声明周期钩子函数
     created () {
       this._getRecommend()
+      this._getDiscList()
     },
 
     methods: {
@@ -65,6 +66,14 @@
           if (res.code === ERR_OK) {
 //            console.log(res)
             this.recommends = res.data.slider
+          }
+        })
+      },
+
+      _getDiscList () {
+        getDiscList().then((res) => {
+          if (res.code === ERR_OK) {
+            console.log(res.data.list)
           }
         })
       }

@@ -40,6 +40,7 @@
         default: 2000
       }
     },
+
     // 使用betterScroll;
     mounted () {
       // 保证dom成功渲染, 20ms, 浏览器17ms一次
@@ -53,11 +54,23 @@
           this._play()
         }
       }, 20)
+      // 监听屏幕大小改变事件
+      window.addEventListener('resize', () => {
+        if (!this.slider) {
+          return
+        }
+        this._setSliderWidth(true)
+        this.slider.refresh()
+      })
     },
 
     methods: {
-      // 设置宽度
-      _setSliderWidth () {
+      /**
+       *
+       * @param isResize 因为this.children变了
+       * @private
+       */
+      _setSliderWidth (isResize) {
         // 获取列表元素
         this.children = this.$refs.sliderGroup.children
         // 设置宽度(计算)
@@ -69,11 +82,14 @@
           child.style.width = sliderWidth + 'px'
           width += sliderWidth
         }
-        if (this.loop) {
+        if (this.loop && !isResize) {
           width += 2 * sliderWidth
         }
         this.$refs.sliderGroup.style.width = width + 'px'
+//        console.log(this.$refs.sliderGroup.style.width)
       },
+
+      // 设置indicator
       _initDots () {
         this.dots = new Array(this.children.length)
       },
@@ -83,13 +99,15 @@
         this.slider = new BScroll(this.$refs.slider, {
           scrollX: true,
           scrollY: false,
-          click: true,
+//          click: true,
           momentum: false,
           snap: true,
           snapLoop: this.loop,
           snapThreshold: 0.5,
           snapSpeed: 500
         })
+
+        // 滚动完成触发的事件
         this.slider.on('scrollEnd', () => {
           let pageIndex = this.slider.getCurrentPage().pageX
           if (this.loop) {

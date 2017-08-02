@@ -64,6 +64,11 @@
       })
     },
 
+    // destroyed hook
+    destroyed () {
+      clearTimeout(this.timer)
+    },
+
     methods: {
       /**
        *

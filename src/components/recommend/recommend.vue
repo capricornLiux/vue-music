@@ -25,7 +25,20 @@
       <!--推荐列表-->
       <div class="recommend-list">
         <h1 class="list-title">热门歌单推荐</h1>
-        <ul></ul>
+        <ul>
+          <li v-for="item in discList" class="item">
+            <div class="icon">
+              <img :src="item.imgurl" alt="" width="60" height="60">
+            </div>
+            <div class="text">
+              <!--<h2 class="name">{{item.creator.name}}</h2>-->
+              <!--<p class="desc">{{item.dissname}}</p>-->
+
+              <h2 class="name" v-html="item.creator.name"></h2>
+              <p class="desc" v-html="item.dissname"></p>
+            </div>
+          </li>
+        </ul>
       </div>
       <!--推荐列表结束-->
     </div>
@@ -45,7 +58,10 @@
 
     data () {
       return {
-        recommends: []
+        recommends: [],
+
+        // 推荐歌单list
+        discList: []
       }
     },
 
@@ -73,7 +89,8 @@
       _getDiscList () {
         getDiscList().then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res.data.list)
+//            console.log(res.data.list)
+            this.discList = res.data.list
           }
         })
       }

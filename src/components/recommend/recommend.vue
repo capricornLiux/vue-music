@@ -49,6 +49,11 @@
         <!--推荐列表结束-->
 
       </div>
+
+      <!--使用loading-->
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
+      </div>
     </scroll>
   </div>
 </template>
@@ -63,6 +68,8 @@
   // 这里有一个疑问? 为什么slider.vue没有export的情况下也可以使用呢?
   // todo
 
+  import Loading from 'base/loading/loading.vue'
+
   export default {
 
     data () {
@@ -76,13 +83,17 @@
 
     components: {
       Slider,
-      Scroll
+      Scroll,
+      Loading
     },
 
     // 声明周期钩子函数
     created () {
       this._getRecommend()
-      this._getDiscList()
+//      this._getDiscList()
+      setTimeout(() => {
+        this._getDiscList()
+      }, 2000)
     },
 
     methods: {

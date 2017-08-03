@@ -14,7 +14,7 @@
             <div v-for="item in recommends">
               <!--遍历轮播图的数据-->
               <a href="item.linkUrl">
-                <img :src="item.picUrl" alt="" @load="loadImg">
+                <img :src="item.picUrl" alt="" @load="loadImg" class="needsclick">
               </a>
               <!--遍历轮播图的数据结束-->
             </div>
@@ -32,12 +32,14 @@
           <ul>
             <li v-for="item in discList" class="item">
               <div class="icon">
-                <img :src="item.imgurl" alt="" width="60" height="60">
+                <!--<img :src="item.imgurl" alt="" width="60" height="60">-->
+                <img v-lazy="item.imgurl" alt="" width="60" height="60">
               </div>
               <div class="text">
                 <!--<h2 class="name">{{item.creator.name}}</h2>-->
                 <!--<p class="desc">{{item.dissname}}</p>-->
 
+                <!--todo v-html的作用-->
                 <h2 class="name" v-html="item.creator.name"></h2>
                 <p class="desc" v-html="item.dissname"></p>
               </div>
@@ -88,7 +90,6 @@
       _getRecommend () {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
-//            console.log(res)
             this.recommends = res.data.slider
           }
         })
@@ -97,7 +98,6 @@
       _getDiscList () {
         getDiscList().then((res) => {
           if (res.code === ERR_OK) {
-//            console.log(res.data.list)
             this.discList = res.data.list
           }
         })
@@ -111,7 +111,6 @@
         }
       }
     }
-
   }
 </script>
 

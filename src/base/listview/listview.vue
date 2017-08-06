@@ -1,7 +1,7 @@
 <template>
-  <scroll :data="data" class="listview">
+  <scroll :data="data" class="listview" ref="listview">
     <ul>
-      <li v-for="group in data" class="list-group">
+      <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li v-for="item in group.items" class="list-group-item">
@@ -11,11 +11,22 @@
         </ul>
       </li>
     </ul>
+
+    <div class="list-shortcut" @touchstart="onShortcutTouchStart">
+      <ul>
+        <li v-for="(item, index) in shortcutList" class="item" :data-index="index">
+          {{item}}
+        </li>
+      </ul>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll.vue'
+
+  import {getData} from 'common/js/dom.js'
+
   export default {
     components: {
       Scroll
@@ -24,6 +35,27 @@
       data: {
         type: Array,
         default: []
+      }
+    },
+    // 计算型属性
+    computed: {
+      /**
+       * 获得右侧数据
+       */
+      shortcutList () {
+        // map方法: 返回一个新数组, 数组中的元素调用方法后的值
+        return this.data.map((group) => {
+          return group.title.substring(0, 1)
+        })
+      }
+    },
+    methods: {
+      // 点击右侧快速索引的时候进行调用
+      onShortcutTouchStart (e) {
+        // 获取锚点索引
+        let anchorIndex = getData(e.target, 'index')
+        // 让scroll滚动到对应的位置
+        this.$refs.listview.scrollToElement(this.$refs.listGroup[anchorIndex], 0)
       }
     }
   }

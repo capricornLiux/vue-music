@@ -7,18 +7,21 @@
     @scroll="scroll"
     :probeType="probeType"
   >
+    <!--歌手列表-->
     <ul>
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li v-for="item in group.items" class="list-group-item">
-            <img :src="item.avatar" class="avatar">
+            <img v-lazy="item.avatar" class="avatar">
             <span class="name">{{item.name}}</span>
           </li>
         </ul>
       </li>
     </ul>
+    <!--歌手列表结束-->
 
+    <!--右侧字母索引区域-->
     <div
       class="list-shortcut"
       @touchstart="onShortcutTouchStart"
@@ -34,10 +37,19 @@
         </li>
       </ul>
     </div>
+    <!--右侧字母索引区域结束-->
 
-    <div class="list-fixed" v-show="fixedTitle">
+    <!--吸顶部分-->
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
       <h1 class="fixed-title">{{fixedTitle}}</h1>
     </div>
+    <!--吸顶部分结束-->
+
+    <!--loading-->
+    <div class="loading-container" v-show="!data.length">
+      <loading></loading>
+    </div>
+    <!--loading结束-->
   </scroll>
 </template>
 
@@ -46,8 +58,13 @@
 
   import {getData} from 'common/js/dom.js'
 
+  import Loading from 'base/loading/loading'
+
   // 定义高度
   const ANCHOR_HEIGHT = 18
+
+  // title高度
+  const TITLE_HEIGHT = 30
 
   export default {
 
@@ -57,12 +74,16 @@
         scrollY: -1,
 
         // 右侧高亮的索引
-        currentIndex: 0
+        currentIndex: 0,
+
+        // 滚动差
+        diff: -1
       }
     },
 
     components: {
-      Scroll
+      Scroll,
+      Loading
     },
 
     props: {
@@ -138,12 +159,25 @@
           let height2 = listHeight[i + 1]
           if (-newY >= height1 && -newY < height2) {
             this.currentIndex = i
+            // 计算diff
+            this.diff = height2 + newY
             return
           }
         }
 
         // 滚动到底部, -newY大于最后一个元素的上线
         this.currentIndex = listHeight.length - 2
+      },
+
+      diff (newVal) {
+        let fixedTopVal = (newVal > 0 && newVal < TITLE_HEIGHT) ? (newVal - TITLE_HEIGHT) : 0
+        // 进行节流, 因为频繁设置style比较消耗系统性能
+        if (this.fixedTopVal === fixedTopVal) {
+          return
+        }
+        this.fixedTopVal = fixedTopVal
+        this.$refs.fixed.style.transform = `translate3d(0,${fixedTopVal}px,0)`
+        // translate3d可以开启gpu加速
       }
     },
 

@@ -13,6 +13,7 @@ Vue.config.productionTip = false
 
 // 对vue-lazyload组件进行注册
 Vue.use(VueLazyLoad, {
+  // 设置加载图片options
   loading: require('common/images/default.png')
 })
 

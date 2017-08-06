@@ -19,7 +19,10 @@
       </li>
     </ul>
 
-    <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
+    <div
+      class="list-shortcut"
+      @touchstart="onShortcutTouchStart"
+      @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
         <li
           v-for="(item, index) in shortcutList"
@@ -46,6 +49,7 @@
 
     data () {
       return {
+        // 左侧列表滚动的距离
         scrollY: -1,
 
         // 右侧高亮的索引
@@ -56,16 +60,19 @@
     components: {
       Scroll
     },
+
     props: {
+      // 歌手列表
       data: {
         type: Array,
         default: []
       }
     },
+
     // 计算型属性
     computed: {
       /**
-       * 获得右侧数据
+       * 获得右侧字母索引数据
        */
       shortcutList () {
         // map方法: 返回一个新数组, 数组中的元素调用方法后的值
@@ -75,10 +82,14 @@
       }
     },
 
-    // 生命周期hook, props和data的属性会被添加getter和setter, 系统观测变化, 绑定dom
+    // 生命周期hook, props和data的属性会被添加getter和setter, 系统观测变化, 动态渲染dom
     created () {
-      // 不需要观测变化, 渲染dom,
+      // 不需要观测变化, 不需要渲染dom的数据可以写在这个方法中
+
+      // 触摸对象
       this.touch = {}
+
+      // 是否监听scroll滚动
       this.listenScroll = true
 
       // 每一组的高度数组
@@ -89,12 +100,15 @@
     },
 
     watch: {
+      // 当监测到data数据发生变化的时候进行调用
       data () {
         setTimeout(() => {
+          // 计算listHeight
           this._calculateHeight()
         }, 20)
       },
 
+      // 滚动的时候进行调用
       scrollY (newY) {
         const listHeight = this.listHeight
 
@@ -151,20 +165,25 @@
       },
 
       /**
-       * 让左侧的歌手列表滚动到指定的位置
-       * @param index
-       * @private
-       */
-      _scrollTo (index) {
-        this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
-      },
-
-      /**
        * 监听到scroll发出scroll的时候进行调用
        * @param pos
        */
       scroll (pos) {
         this.scrollY = pos.y
+      },
+
+      /**
+       * 让左侧的歌手列表滚动到指定的位置
+       * @param index
+       * @private
+       */
+      _scrollTo (index) {
+        if (index === null || index < 0 || index > this.listHeight.length - 2) {
+          return
+        }
+        this.currentIndex = parseInt(index)
+        // TODO 视频中的写法
+        this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
       },
 
       /**

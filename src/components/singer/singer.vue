@@ -1,15 +1,28 @@
 <template>
-  <div>singer</div>
+  <div class="singer">
+    <!--使用listview展示歌手列表-->
+    <list-view :data="singerList" v-if="singerList.length"></list-view>
+    <!--使用listview展示歌手列表结束-->
+
+  </div>
 </template>
 
 <script type="text/ecmascript-6">
   import {getSingerList} from 'api/singer'
   import {ERR_OK} from 'api/config'
 
+  // 导入listview组件
+  import ListView from 'base/listview/listview.vue'
+
   const HOT_NAME = '热门'
   const HOT_SINGER_LEN = 10
 
   export default {
+
+    components: {
+      ListView
+    },
+
     data () {
       return {
         singerList: []
@@ -24,9 +37,7 @@
       _getSingerList () {
         getSingerList().then(res => {
           if (res.code === ERR_OK) {
-            this.singerList = res.data.list
-            console.log(this.singerList)
-            console.log(this._normalizeSinger(this.singerList))
+            this.singerList = this._normalizeSinger(res.data.list)
           }
         })
       },
@@ -93,4 +104,11 @@
   }
 </script>
 
-<style scoped lang="stylus" rel="stylesheet/stylus"></style>
+<style scoped lang="stylus" rel="stylesheet/stylus">
+  /*父元素的高度需要固定, 子元素的内容撑开, 才能滚动*/
+  .singer
+    position: fixed
+    top: 88px
+    bottom: 0
+    width: 100%
+</style>

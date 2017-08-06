@@ -22,6 +22,11 @@
       data: {
         type: Array,
         default: null
+      },
+      // 是否需要监听滚动
+      listenScroll: {
+        type: Boolean,
+        default: false
       }
     },
 
@@ -41,6 +46,14 @@
           probeType: this.probeType,
           click: this.click
         })
+
+        if (this.listenScroll) {
+          let self = this
+          // 监听滚动事件
+          this.scroll.on('scroll', (pos) => {
+            self.$emit('scroll', pos)
+          })
+        }
       },
 
       // 方法代理

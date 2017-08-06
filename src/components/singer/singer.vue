@@ -1,7 +1,7 @@
 <template>
   <div class="singer">
     <!--使用listview展示歌手列表-->
-    <list-view :data="singerList" v-if="singerList.length"></list-view>
+    <list-view :data="singerList"></list-view>
     <!--使用listview展示歌手列表结束-->
 
   </div>

@@ -1,5 +1,12 @@
 <template>
-  <scroll :data="data" class="listview" ref="listview">
+  <scroll
+    :data="data"
+    class="listview"
+    ref="listview"
+    :listenScroll="listenScroll"
+    @scroll="scroll"
+    :probeType="probeType"
+  >
     <ul>
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -14,7 +21,12 @@
 
     <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
-        <li v-for="(item, index) in shortcutList" class="item" :data-index="index">
+        <li
+          v-for="(item, index) in shortcutList"
+          class="item"
+          :data-index="index"
+          :class="{'current': currentIndex === index}"
+        >
           {{item}}
         </li>
       </ul>
@@ -31,6 +43,16 @@
   const ANCHOR_HEIGHT = 18
 
   export default {
+
+    data () {
+      return {
+        scrollY: -1,
+
+        // 右侧高亮的索引
+        currentIndex: 0
+      }
+    },
+
     components: {
       Scroll
     },
@@ -57,6 +79,46 @@
     created () {
       // 不需要观测变化, 渲染dom,
       this.touch = {}
+      this.listenScroll = true
+
+      // 每一组的高度数组
+      this.listHeight = []
+
+      // 解决滑动滚动的节流问题
+      this.probeType = 3
+    },
+
+    watch: {
+      data () {
+        setTimeout(() => {
+          this._calculateHeight()
+        }, 20)
+      },
+
+      scrollY (newY) {
+        const listHeight = this.listHeight
+
+        // 滚动的情况
+
+        // 滚动到页面的顶部
+        if (newY > 0) {
+          this.currentIndex = 0
+          return
+        }
+
+        // 在页面中间部分
+        for (let i = 0; i < listHeight.length - 1; i++) {
+          let height1 = listHeight[i]
+          let height2 = listHeight[i + 1]
+          if (-newY >= height1 && -newY < height2) {
+            this.currentIndex = i
+            return
+          }
+        }
+
+        // 滚动到底部, -newY大于最后一个元素的上线
+        this.currentIndex = listHeight.length - 2
+      }
     },
 
     methods: {
@@ -68,7 +130,6 @@
 
         // 获取锚点索引
         let anchorIndex = getData(e.target, 'index')
-        console.log(typeof anchorIndex)
         this.touch.anchorIndex = anchorIndex
 
         // 让scroll滚动到对应的位置
@@ -88,8 +149,38 @@
         let targetIndex = parseInt(this.touch.anchorIndex) + delta
         this._scrollTo(targetIndex)
       },
+
+      /**
+       * 让左侧的歌手列表滚动到指定的位置
+       * @param index
+       * @private
+       */
       _scrollTo (index) {
         this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+      },
+
+      /**
+       * 监听到scroll发出scroll的时候进行调用
+       * @param pos
+       */
+      scroll (pos) {
+        this.scrollY = pos.y
+      },
+
+      /**
+       * 当listview的data发生变化的时候计算每一个组的高度
+       * @private
+       */
+      _calculateHeight () {
+        this.listHeight = []
+        const list = this.$refs.listGroup
+        let height = 0
+        this.listHeight.push(height)
+        for (let i = 0; i < list.length; i++) {
+          let item = list[i]
+          height += item.clientHeight
+          this.listHeight.push(height)
+        }
       }
     }
   }

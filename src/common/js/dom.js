@@ -20,7 +20,7 @@ export function hasClass (el, className) {
  * @param el 元素
  * @param name 属性名
  * @param val 给定的值
- * @returns {*}
+ * @returns {*} get的时候返回的类型为String, 参见getAttribute方法说明
  */
 export function getData (el, name, val) {
   const prefix = 'data-'

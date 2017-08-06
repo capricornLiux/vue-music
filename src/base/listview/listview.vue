@@ -12,7 +12,7 @@
       </li>
     </ul>
 
-    <div class="list-shortcut" @touchstart="onShortcutTouchStart">
+    <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
         <li v-for="(item, index) in shortcutList" class="item" :data-index="index">
           {{item}}
@@ -26,6 +26,9 @@
   import Scroll from 'base/scroll/scroll.vue'
 
   import {getData} from 'common/js/dom.js'
+
+  // 定义高度
+  const ANCHOR_HEIGHT = 18
 
   export default {
     components: {
@@ -49,13 +52,44 @@
         })
       }
     },
+
+    // 生命周期hook, props和data的属性会被添加getter和setter, 系统观测变化, 绑定dom
+    created () {
+      // 不需要观测变化, 渲染dom,
+      this.touch = {}
+    },
+
     methods: {
       // 点击右侧快速索引的时候进行调用
       onShortcutTouchStart (e) {
+        // 点击的时候记录手指的初始位置, 为滚动提供数据
+        let firstTouch = e.touches[0]
+        this.touch.y1 = firstTouch.pageY
+
         // 获取锚点索引
         let anchorIndex = getData(e.target, 'index')
+        console.log(typeof anchorIndex)
+        this.touch.anchorIndex = anchorIndex
+
         // 让scroll滚动到对应的位置
-        this.$refs.listview.scrollToElement(this.$refs.listGroup[anchorIndex], 0)
+        this._scrollTo(anchorIndex)
+      },
+
+      /**
+       * 滚动列表的时候调用
+       * @param e
+       */
+      onShortcutTouchMove (e) {
+        let currentTouch = e.touches[0]
+        this.touch.y2 = currentTouch.pageY
+        // 滚动了几个锚点
+        let delta = Math.floor((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT)
+        // TODO 为什么|0 就可以向下取整呢?
+        let targetIndex = parseInt(this.touch.anchorIndex) + delta
+        this._scrollTo(targetIndex)
+      },
+      _scrollTo (index) {
+        this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
       }
     }
   }

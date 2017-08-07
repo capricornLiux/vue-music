@@ -1,8 +1,10 @@
 <template>
   <div class="singer">
     <!--使用listview展示歌手列表-->
-    <list-view :data="singerList"></list-view>
+    <list-view :data="singerList" @clickSingerList="clickSingerList"></list-view>
     <!--使用listview展示歌手列表结束-->
+
+    <router-view></router-view>
 
   </div>
 </template>
@@ -33,6 +35,13 @@
     },
 
     methods: {
+
+      clickSingerList (singer) {
+        this.$router.push({
+          path: `/singer/${singer.id}`
+        })
+      },
+
       // 获取歌手列表
       _getSingerList () {
         getSingerList().then(res => {

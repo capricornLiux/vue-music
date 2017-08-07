@@ -12,7 +12,7 @@
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li v-for="item in group.items" class="list-group-item">
+          <li v-for="item in group.items" class="list-group-item" @click="clickItem(item)">
             <img v-lazy="item.avatar" class="avatar">
             <span class="name">{{item.name}}</span>
           </li>
@@ -182,6 +182,14 @@
     },
 
     methods: {
+
+      // 点击歌手列表然后触发这个方法
+      clickItem (item) {
+        // 发送通知
+        // 基础组件, 不写业务逻辑, 将对象派发就可以了
+        this.$emit('clickSingerList', item)
+      },
+
       // 点击右侧快速索引的时候进行调用
       onShortcutTouchStart (e) {
         // 点击的时候记录手指的初始位置, 为滚动提供数据

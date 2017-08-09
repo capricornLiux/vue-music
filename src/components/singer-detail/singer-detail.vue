@@ -12,6 +12,9 @@
 
   import {mapGetters} from 'vuex'
 
+  // 导入api
+  import {getSingerDetail} from 'api/singer'
+
   export default {
     computed: {
       ...mapGetters([
@@ -20,8 +23,21 @@
     },
 
     created () {
-      console.log('singer')
-      console.log(this.singer)
+      this._getDetail()
+    },
+
+    methods: {
+      _getDetail () {
+        // vuex的数据没有的时候返回上一页
+        if (!this.singer.id) {
+          this.$router.push('/singer')
+          return
+        }
+
+        getSingerDetail(this.singer.id).then((res) => {
+
+        })
+      }
     }
   }
 </script>

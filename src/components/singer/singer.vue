@@ -16,6 +16,9 @@
   // 导入listview组件
   import ListView from 'base/listview/listview.vue'
 
+  // 导入vuex的语法糖, 在methods属性最后, 通过拓展运算符的方式调用, 做一个对象映射, mutations的修改映射为一个方法名
+  import {mapMutations} from 'vuex'
+
   const HOT_NAME = '热门'
   const HOT_SINGER_LEN = 10
 
@@ -40,6 +43,9 @@
         this.$router.push({
           path: `/singer/${singer.id}`
         })
+
+        // 调用vuex
+        this.setSinger(singer)
       },
 
       // 获取歌手列表
@@ -108,7 +114,12 @@
           return a.title.charCodeAt(0) - b.title.charCodeAt(0)
         })
         return hot.concat(ret)
-      }
+      },
+
+      // 使用mutaions的语法糖
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      })
     }
   }
 </script>

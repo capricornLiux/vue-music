@@ -9,7 +9,21 @@
 
 <script type="text/ecmascript-6">
   // 路由依赖组件进行承载
-  export default {}
+
+  import {mapGetters} from 'vuex'
+
+  export default {
+    computed: {
+      ...mapGetters([
+        'singer'
+      ])
+    },
+
+    created () {
+      console.log('singer')
+      console.log(this.singer)
+    }
+  }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">

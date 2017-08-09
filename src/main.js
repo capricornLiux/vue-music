@@ -4,6 +4,9 @@ import App from './App'
 import router from './router'
 import fastclick from 'fastclick'
 
+// 导入store
+import store from './store'
+
 import 'common/stylus/index.styl'
 
 // 使用vue-lazyload
@@ -24,5 +27,8 @@ fastclick.attach(document.body)
 new Vue({
   el: '#app',
   router,
+
+  // 注册vuex store
+  store,
   render: h => h(App)
 })

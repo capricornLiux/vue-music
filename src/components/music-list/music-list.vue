@@ -1,19 +1,40 @@
 <template>
   <div class="music-list">
+    <!--返回按钮-->
     <div class="back">
       <i class="icon-back"></i>
     </div>
+    <!--返回按钮结束-->
 
+    <!--歌手名-->
     <h1 class="title" v-html="title"></h1>
+    <!--歌手名结束-->
 
-    <div class="bg-image" :style="bgStyle">
+    <!--歌手头图-->
+    <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="filter"></div>
     </div>
+    <!--歌手头图结束-->
+
+    <!--使用scroll包装歌曲列表组件-->
+    <scroll :data="songs" class="list" ref="list">
+      <div class="song-list-wrapper">
+        <song-list :songs="songs"></song-list>
+      </div>
+    </scroll>
+    <!--使用scroll包装歌曲列表组件结束-->
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import Scroll from 'base/scroll/scroll'
+  import SongList from 'base/song-list/song-list'
+
   export default {
+    components: {
+      Scroll,
+      SongList
+    },
     props: {
       bgImage: {
         type: String,
@@ -32,11 +53,14 @@
       bgStyle () {
         return `background-image:url(${this.bgImage})`
       }
+    },
+    mounted () {
+      this.$refs.list.$el.style.top = this.$refs.bgImage.clientHeight + 'px'
     }
   }
 </script>
 
-<style lang="stylus" rel="stylesheet/stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
   @import "~common/stylus/mixin"
 

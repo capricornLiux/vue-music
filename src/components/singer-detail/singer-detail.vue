@@ -1,8 +1,6 @@
 <template>
   <transition name="slide">
-    <div class="singer-detail">
-      7788
-    </div>
+    <music-list :songs="songs" :bg-image="bgImage" :title="title"></music-list>
   </transition>
 
 </template>
@@ -19,7 +17,12 @@
 
   import {ERR_OK} from 'api/config'
 
+  import MusicList from 'components/music-list/music-list'
+
   export default {
+    components: {
+      MusicList
+    },
     data () {
       return {
         // 歌手的所有歌曲
@@ -27,6 +30,14 @@
       }
     },
     computed: {
+      title () {
+        return this.singer.name
+        // 计算型属性没有使用的时候就没有值 TODO
+      },
+
+      bgImage () {
+        return this.singer.avatar
+      },
       ...mapGetters([
         'singer'
       ])
@@ -110,14 +121,7 @@
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
-  .singer-detail
-    position: fixed
-    top: 0
-    right: 0
-    bottom: 0
-    left: 0
-    z-index: 100
-    background: $color-background
+
   .slide-enter-active
     transition: all .5s
   .slide-leave-active

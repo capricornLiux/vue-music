@@ -33,6 +33,9 @@
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
 
+  // 预留title的位置高度
+  const RESERVED_HEIGHT = 40
+
   export default {
     components: {
       Scroll,
@@ -64,7 +67,7 @@
     mounted () {
       // 缓存图片高度
       this.imageHeight = this.$refs.bgImage.clientHeight
-      this.minTranslateY = -this.imageHeight
+      this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT
       this.$refs.list.$el.style.top = this.$refs.bgImage.clientHeight + 'px'
     },
     methods: {
@@ -83,6 +86,17 @@
         let maxScrollY = Math.max(this.minTranslateY, newY)
         this.$refs.layer.style['transform'] = `translate3d(0,${maxScrollY}px,0)`
         this.$refs.layer.style['webkitTransform'] = `translate3d(0,${maxScrollY}px,0)`
+
+        let zIndex = 0
+        if (newY < this.minTranslateY) {
+          this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+          this.$refs.bgImage.style.paddingTop = 0
+          zIndex = 10
+        } else {
+          this.$refs.bgImage.style.height = 0
+          this.$refs.bgImage.style.paddingTop = '70%'
+        }
+        this.$refs.bgImage.style.zIndex = zIndex
       }
     }
   }

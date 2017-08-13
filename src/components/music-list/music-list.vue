@@ -16,8 +16,11 @@
     </div>
     <!--歌手头图结束-->
 
+    <!--带着歌曲列表上滑的层-->
+    <div class="bg-layer" ref="layer"></div>
+
     <!--使用scroll包装歌曲列表组件-->
-    <scroll :data="songs" class="list" ref="list">
+    <scroll :data="songs" class="list" ref="list" :probe-type="probeType" :listen-scroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
@@ -54,8 +57,33 @@
         return `background-image:url(${this.bgImage})`
       }
     },
+    created () {
+      this.probeType = 3
+      this.listenScroll = true
+    },
     mounted () {
+      // 缓存图片高度
+      this.imageHeight = this.$refs.bgImage.clientHeight
+      this.minTranslateY = -this.imageHeight
       this.$refs.list.$el.style.top = this.$refs.bgImage.clientHeight + 'px'
+    },
+    methods: {
+      // 滚动的时候调用
+      scroll (pos) {
+        this.scrollY = pos.y
+      }
+    },
+    data () {
+      return {
+        scrollY: 0
+      }
+    },
+    watch: {
+      scrollY (newY) {
+        let maxScrollY = Math.max(this.minTranslateY, newY)
+        this.$refs.layer.style['transform'] = `translate3d(0,${maxScrollY}px,0)`
+        this.$refs.layer.style['webkitTransform'] = `translate3d(0,${maxScrollY}px,0)`
+      }
     }
   }
 </script>

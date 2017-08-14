@@ -2,7 +2,7 @@
   <div class="music-list">
     <!--返回按钮-->
     <div class="back">
-      <i class="icon-back"></i>
+      <i class="icon-back" @click="back"></i>
     </div>
     <!--返回按钮结束-->
 
@@ -12,6 +12,14 @@
 
     <!--歌手头图-->
     <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <!--播放当前歌单的按钮-->
+      <div class="play-wrapper">
+        <div class="play" v-show="songs.length>0" ref="playBtn">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
+
       <div class="filter" ref="filter"></div>
     </div>
     <!--歌手头图结束-->
@@ -24,6 +32,12 @@
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
+
+      <!--loading-->
+      <div class="loading-container" v-show="!songs.length">
+        <loading></loading>
+      </div>
+      <!--loading结束-->
     </scroll>
     <!--使用scroll包装歌曲列表组件结束-->
   </div>
@@ -32,6 +46,9 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
+
+  // loading
+  import Loading from 'base/loading/loading'
 
   // 使用vender prefix前缀函数
   import {prefixStyle} from 'common/js/dom.js'
@@ -45,7 +62,8 @@
   export default {
     components: {
       Scroll,
-      SongList
+      SongList,
+      Loading
     },
     props: {
       bgImage: {
@@ -80,6 +98,11 @@
       // 滚动的时候调用
       scroll (pos) {
         this.scrollY = pos.y
+      },
+
+      // 返回上一页
+      back () {
+        this.$router.back()
       }
     },
     data () {
@@ -119,9 +142,11 @@
           this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
           this.$refs.bgImage.style.paddingTop = 0
           zIndex = 10
+          this.$refs.playBtn.style.display = 'none'
         } else {
           this.$refs.bgImage.style.height = 0
           this.$refs.bgImage.style.paddingTop = '70%'
+          this.$refs.playBtn.style.display = ''
         }
         this.$refs.bgImage.style.zIndex = zIndex
       }

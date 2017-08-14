@@ -12,7 +12,7 @@
 
     <!--歌手头图-->
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      <div class="filter"></div>
+      <div class="filter" ref="filter"></div>
     </div>
     <!--歌手头图结束-->
 
@@ -83,11 +83,30 @@
     },
     watch: {
       scrollY (newY) {
+        let zIndex = 0
+
+        // 控制歌手头图的大小
+        let scale = 1
+
+        // 模糊度
+        let blur = 0
+
         let maxScrollY = Math.max(this.minTranslateY, newY)
         this.$refs.layer.style['transform'] = `translate3d(0,${maxScrollY}px,0)`
         this.$refs.layer.style['webkitTransform'] = `translate3d(0,${maxScrollY}px,0)`
 
-        let zIndex = 0
+        if (newY > 0) {
+          scale += Math.abs(newY / this.imageHeight)
+          this.$refs.bgImage.style['transform'] = `scale(${scale})`
+          this.$refs.bgImage.style['webkitTransform'] = `scale(${scale})`
+          zIndex = 10
+        } else {
+          blur = Math.ceil(Math.min(20 * Math.abs(newY / this.imageHeight), 20))
+          console.log(blur)
+        }
+        this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`
+        this.$refs.filter.style['webkitBackdrop-filter'] = `blur(${blur}px)`
+
         if (newY < this.minTranslateY) {
           this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
           this.$refs.bgImage.style.paddingTop = 0

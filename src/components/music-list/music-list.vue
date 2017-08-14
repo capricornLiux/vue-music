@@ -33,6 +33,12 @@
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
 
+  // 使用vender prefix前缀函数
+  import {prefixStyle} from 'common/js/dom.js'
+
+  const transform = prefixStyle('transform')
+  const backdrop = prefixStyle('backdrop-filter')
+
   // 预留title的位置高度
   const RESERVED_HEIGHT = 40
 
@@ -82,6 +88,7 @@
       }
     },
     watch: {
+      // 滚动的时候调用
       scrollY (newY) {
         let zIndex = 0
 
@@ -91,23 +98,24 @@
         // 模糊度
         let blur = 0
 
+        // layer层的滚动距离限制
         let maxScrollY = Math.max(this.minTranslateY, newY)
-        this.$refs.layer.style['transform'] = `translate3d(0,${maxScrollY}px,0)`
-        this.$refs.layer.style['webkitTransform'] = `translate3d(0,${maxScrollY}px,0)`
+
+        // 滚动占图片高度的比值
+        const percent = Math.abs(newY / this.imageHeight)
 
         if (newY > 0) {
-          scale += Math.abs(newY / this.imageHeight)
-          this.$refs.bgImage.style['transform'] = `scale(${scale})`
-          this.$refs.bgImage.style['webkitTransform'] = `scale(${scale})`
+          scale = 1 + percent
           zIndex = 10
         } else {
-          blur = Math.ceil(Math.min(20 * Math.abs(newY / this.imageHeight), 20))
-          console.log(blur)
+          blur = Math.min(20 * percent, 20)
         }
-        this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`
-        this.$refs.filter.style['webkitBackdrop-filter'] = `blur(${blur}px)`
+        this.$refs.layer.style[transform] = `translate3d(0,${maxScrollY}px,0)`
+        this.$refs.filter.style[backdrop] = `blur(${blur}px)`
+        this.$refs.bgImage.style[transform] = `scale(${scale})`
 
         if (newY < this.minTranslateY) {
+          // 图片遮盖滚动菜单
           this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
           this.$refs.bgImage.style.paddingTop = 0
           zIndex = 10

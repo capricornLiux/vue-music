@@ -30,7 +30,7 @@
     <!--使用scroll包装歌曲列表组件-->
     <scroll :data="songs" class="list" ref="list" :probe-type="probeType" :listen-scroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list :songs="songs" @selectItem="selectItem"></song-list>
       </div>
 
       <!--loading-->
@@ -52,6 +52,9 @@
 
   // 使用vender prefix前缀函数
   import {prefixStyle} from 'common/js/dom.js'
+
+  // 使用mapActions
+  import {mapActions} from 'vuex'
 
   const transform = prefixStyle('transform')
   const backdrop = prefixStyle('backdrop-filter')
@@ -95,6 +98,22 @@
       this.$refs.list.$el.style.top = this.$refs.bgImage.clientHeight + 'px'
     },
     methods: {
+      selectItem (song, index) {
+        // '调用'actions方法
+        this.selectPlay({
+          // 子组件不关心外部怎样, 尽可能多的传递数据给外界
+          list: this.songs,
+          index: index
+        })
+      },
+
+      /**
+       * 代理actions,通过vuex的语法糖, 将actions封装为类似可以调用的方法
+       */
+      ...mapActions([
+        'selectPlay'
+      ]),
+
       // 滚动的时候调用
       scroll (pos) {
         this.scrollY = pos.y

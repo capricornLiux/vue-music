@@ -7,16 +7,22 @@
       <router-view></router-view>
     </keep-alive>
 
+    <!--播放器不属于任何路由-->
+    <player></player>
+
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import MHeader from 'components/m-header/m-header.vue'
   import Tab from 'components/tab/tab'
+  import Player from 'components/player/player.vue'
+
   export default {
     components: {
       MHeader,
-      Tab
+      Tab,
+      Player
     }
   }
 </script>

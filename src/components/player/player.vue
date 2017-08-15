@@ -2,29 +2,130 @@
   <div class="player" v-show="playList.length">
     <!--全屏播放-->
     <div class="normal-player" v-show="fullScreen">
-      播放器
+      <!--背景图-->
+      <div class="background">
+        <img :src="currentSong.image" alt="" width="100%" height="100%">
+      </div>
+      <!--背景图结束-->
+
+      <!--顶部-->
+      <div class="top">
+        <!--返回按钮-->
+        <div class="back" @click="back">
+          <i class="icon-back"></i>
+        </div>
+        <!--歌曲名-->
+        <h1 class="title" v-html="currentSong.name"></h1>
+        <!--歌手名-->
+        <h1 class="subtitle" v-html="currentSong.singer"></h1>
+      </div>
+      <!--顶部结束-->
+
+      <!--中部-->
+      <div class="middle">
+        <div class="middle-l">
+          <div class="cd-wrapper">
+            <div class="cd">
+              <img :src="currentSong.image" alt="" class="image">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--中部结束-->
+
+      <!--底部操作区-->
+      <div class="bottom">
+
+        <!--进度条-->
+        <!--进度条结束-->
+
+        <!--上下首-->
+        <div class="operators">
+
+          <!--播放模式-->
+          <div class="icon i-left">
+            <i class="icon-sequence"></i>
+          </div>
+
+          <!--上一首-->
+          <div class="icon i-left">
+            <i class="icon-prev"></i>
+          </div>
+
+          <!--暂停/开始-->
+          <div class="icon i-center">
+            <i class="icon-play"></i>
+          </div>
+
+          <!--下一首-->
+          <div class="icon i-right">
+            <i class="icon-next"></i>
+          </div>
+
+          <div class="icon i-right">
+            <i class="icon icon-not-favorite"></i>
+          </div>
+        </div>
+      </div>
+      <!--底部操作区结束-->
+
     </div>
     <!--全屏播放-->
 
+
     <!--底部播放-->
-    <div class="mini-player" v-show="!fullScreen"></div>
+    <div class="mini-player" v-show="!fullScreen" @click="fullScreenPlayer">
+
+      <!--左侧旋转图片-->
+      <div class="icon">
+        <img :src="currentSong.image" alt="" width="40" height="40">
+      </div>
+      <!--左侧旋转图片结束-->
+
+      <!--歌曲信息-->
+      <div class="text">
+        <h2 class="name" v-html="currentSong.name"></h2>
+        <p class="desc" v-html="currentSong.singer"></p>
+      </div>
+      <!--歌曲信息结束-->
+
+      <!--播放按钮-->
+      <div class="control">
+
+      </div>
+
+      <!--展开歌单-->
+      <div class="control">
+        <i class="icon-playlist"></i>
+      </div>
+    </div>
     <!--底部播放-->
   </div>
 
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters} from 'vuex'
+  import {mapGetters, mapMutations} from 'vuex'
 
   export default {
     computed: {
       ...mapGetters([
         'fullScreen',
-        'playList'
+        'playList',
+        'currentSong'
       ])
     },
 
     methods: {
+      back () {
+        this.setFullScreen(false)
+      },
+      fullScreenPlayer () {
+        this.setFullScreen(true)
+      },
+      ...mapMutations({
+        setFullScreen: 'SET_FULLSCREEN'
+      })
     }
   }
 

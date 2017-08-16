@@ -1,7 +1,13 @@
 <template>
   <div class="player" v-show="playList.length">
     <!--全屏播放-->
-    <transition name="normal">
+    <transition name="normal"
+                @enter="enter"
+                @after-enter="afterEnter"
+                @leave="leave"
+                @after-leave="afterLeave"
+                ref="trans"
+    >
       <div class="normal-player" v-show="fullScreen">
         <!--背景图-->
         <div class="background">
@@ -25,7 +31,7 @@
         <!--中部-->
         <div class="middle">
           <div class="middle-l">
-            <div class="cd-wrapper">
+            <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd">
                 <img :src="currentSong.image" alt="" class="image">
               </div>
@@ -111,6 +117,8 @@
 <script type="text/ecmascript-6">
   import {mapGetters, mapMutations} from 'vuex'
 
+  import createKeyframeAnimation from 'create-keyframe-animation'
+
   export default {
     computed: {
       ...mapGetters([
@@ -129,7 +137,90 @@
       },
       ...mapMutations({
         setFullScreen: 'SET_FULLSCREEN'
-      })
+      }),
+
+      // 动画钩子函数
+      /**
+       * enter钩子函数
+       * @param el 操作的dom元素
+       * @param done 回调函数, 执行的时候跳转到下一个动画hook函数
+       */
+      enter (el, done) {
+        // 解构赋值
+        const {x, y, scale} = this._getPosAndScale()
+
+        let animation = {
+
+          0: {
+            transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+          },
+          60: {
+            transform: `translate3d(0,0,0) scale(1.1)`
+          },
+          100: {
+            transform: `translate3d(0,0,0) scale(1)`
+          }
+        }
+
+        // 注册动画
+        createKeyframeAnimation.registerAnimation({
+          name: 'move',
+          animation,
+          presets: {
+            duration: 10000,
+            easing: 'linear'
+          }
+        })
+
+        // 执行动画
+        createKeyframeAnimation.runAnimation(this.$refs.cdWrapper, 'move', done)
+      },
+
+      afterEnter (el) {
+        // unregister
+        createKeyframeAnimation.unregisterAnimation('move')
+        // 清空
+        this.$refs.cdWrapper.style.animation = null
+      },
+
+      leave (el, done) {
+
+      },
+
+      afterLeave (el) {
+
+      },
+
+      /**
+       * 获取动画参数
+       * @returns {{x: number, y: number, scale: number}}
+       * @private
+       */
+      _getPosAndScale () {
+        // 小图宽度
+        const targetWidth = 40
+
+        // 小图位置
+        const paddingLeft = 40
+        const paddingBottom = 30
+
+        // 大图位置
+        const paddingTop = 80
+        // 大图宽度
+        const width = window.innerWidth * 0.8
+
+        // 缩放比例
+        const scale = targetWidth / width
+
+        // 动画移动距离
+        const x = -(window.innerWidth / 2 - paddingLeft)
+        const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
+        return {
+          x,
+          y,
+          scale
+        }
+      }
     }
   }
 

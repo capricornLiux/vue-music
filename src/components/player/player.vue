@@ -31,7 +31,7 @@
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+              <div class="cd" :class="cdClass">
                 <img :src="currentSong.image" alt="" class="image">
               </div>
             </div>
@@ -60,7 +60,7 @@
 
             <!--暂停/开始-->
             <div class="icon i-center">
-              <i class="icon-play" @click="togglePlaying"></i>
+              <i :class="playIcon" @click="togglePlaying"></i>
             </div>
 
             <!--下一首-->
@@ -86,7 +86,7 @@
 
         <!--左侧旋转图片-->
         <div class="icon">
-          <img :src="currentSong.image" alt="" width="40" height="40">
+          <img :src="currentSong.image" alt="" width="40" height="40" :class="cdClass">
         </div>
         <!--左侧旋转图片结束-->
 
@@ -99,7 +99,7 @@
 
         <!--播放按钮-->
         <div class="control">
-
+          <i :class="miniIcon" @click.stop="togglePlaying"></i>
         </div>
 
         <!--展开歌单-->
@@ -132,7 +132,16 @@
         'playList',
         'currentSong',
         'playing'
-      ])
+      ]),
+      playIcon () {
+        return this.playing ? 'icon-pause' : 'icon-play'
+      },
+      miniIcon () {
+        return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+      },
+      cdClass () {
+        return this.playing ? 'play' : 'play pause'
+      }
     },
 
     methods: {
@@ -149,7 +158,6 @@
 
       togglePlaying () {
         this.setPlayingState(!this.playing)
-//        this.$refs.audio.
       },
 
       // 动画钩子函数

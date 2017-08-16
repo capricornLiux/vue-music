@@ -60,7 +60,7 @@
 
             <!--暂停/开始-->
             <div class="icon i-center">
-              <i class="icon-play"></i>
+              <i class="icon-play" @click="togglePlaying"></i>
             </div>
 
             <!--下一首-->
@@ -109,6 +109,9 @@
       </div>
     </transition>
     <!--底部播放-->
+
+    <!--使用HTML5的audio标签播放-->
+    <audio :src="currentSong.url" ref="audio"></audio>
   </div>
 
 </template>
@@ -127,7 +130,8 @@
       ...mapGetters([
         'fullScreen',
         'playList',
-        'currentSong'
+        'currentSong',
+        'playing'
       ])
     },
 
@@ -139,8 +143,14 @@
         this.setFullScreen(true)
       },
       ...mapMutations({
-        setFullScreen: 'SET_FULLSCREEN'
+        setFullScreen: 'SET_FULLSCREEN',
+        setPlayingState: 'SET_PLAYING_STATE'
       }),
+
+      togglePlaying () {
+        this.setPlayingState(!this.playing)
+//        this.$refs.audio.
+      },
 
       // 动画钩子函数
       /**
@@ -229,6 +239,22 @@
           y,
           scale
         }
+      }
+    },
+
+    watch: {
+      currentSong () {
+        // 监听数据变化要保证dom已经渲染了
+        this.$nextTick(() => {
+          this.$refs.audio.play()
+        })
+      },
+
+      playing (newValue) {
+        this.$nextTick(() => {
+          const audioDom = this.$refs.audio
+          newValue ? audioDom.play() : audioDom.pause()
+        })
       }
     }
   }

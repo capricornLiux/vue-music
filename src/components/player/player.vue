@@ -6,7 +6,6 @@
                 @after-enter="afterEnter"
                 @leave="leave"
                 @after-leave="afterLeave"
-                ref="trans"
     >
       <div class="normal-player" v-show="fullScreen">
         <!--背景图-->
@@ -119,6 +118,10 @@
 
   import createKeyframeAnimation from 'create-keyframe-animation'
 
+  import {prefixStyle} from 'common/js/dom'
+
+  const transform = prefixStyle('transform')
+
   export default {
     computed: {
       ...mapGetters([
@@ -167,7 +170,7 @@
           name: 'move',
           animation,
           presets: {
-            duration: 10000,
+            duration: 700,
             easing: 'linear'
           }
         })
@@ -180,15 +183,21 @@
         // unregister
         createKeyframeAnimation.unregisterAnimation('move')
         // 清空
-        this.$refs.cdWrapper.style.animation = null
+        this.$refs.cdWrapper.style.animation = ''
       },
 
       leave (el, done) {
+        this.$refs.cdWrapper.style.transition = 'all, 1s'
+        const {x, y, scale} = this._getPosAndScale()
+        this.$refs.cdWrapper.style[transform] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
 
+        // 手动监听动画完成的时机
+        this.$refs.cdWrapper.addEventListener('transitionend', done)
       },
 
       afterLeave (el) {
-
+        this.$refs.cdWrapper.style.transition = ''
+        this.$refs.cdWrapper.style[transform] = ''
       },
 
       /**

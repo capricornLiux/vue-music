@@ -50,7 +50,7 @@
 
             <!--进度条-->
             <div class="progress-bar-wrapper">
-
+              <progress-bar :percent="percent"></progress-bar>
             </div>
 
             <!--右侧总时长-->
@@ -136,9 +136,14 @@
 
   import {prefixStyle} from 'common/js/dom'
 
+  import ProgressBar from 'base/progress-bar/progress-bar'
+
   const transform = prefixStyle('transform')
 
   export default {
+    components: {
+      ProgressBar
+    },
     data () {
       return {
         // 歌曲是否缓冲完可以播放
@@ -171,6 +176,10 @@
       // 不能点击的时候置灰
       disableClass () {
         return this.songReady ? '' : 'disable'
+      },
+      // 歌曲播放的百分比
+      percent () {
+        return this.currentTime / this.currentSong.duration
       }
     },
 

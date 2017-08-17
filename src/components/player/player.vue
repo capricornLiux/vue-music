@@ -144,6 +144,8 @@
 
   import {playMode} from 'common/js/config'
 
+  import {shuffle} from 'common/js/util'
+
   const transform = prefixStyle('transform')
 
   export default {
@@ -168,7 +170,8 @@
         'currentSong',
         'playing',
         'currentIndex',
-        'mode'
+        'mode',
+        'sequenceList'
       ]),
       // 根据playing定义播放按钮图标
       playIcon () {
@@ -209,7 +212,8 @@
         setFullScreen: 'SET_FULLSCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
         setCurrentIndex: 'SET_CURRENTINDEX',
-        setPlayMode: 'SET_PLAYMODE'
+        setPlayMode: 'SET_PLAYMODE',
+        setPlayList: 'SET_PLAYLIST'
       }),
 
       // 点击暂停/开始按钮
@@ -297,6 +301,32 @@
       changePlayMode () {
         const mode = (this.mode + 1) % 3
         this.setPlayMode(mode)
+
+        // 切换state中的playlist
+        let list = null
+        if (mode === playMode.random) {
+          // 随机列表
+          // 对sequenceList进行洗牌
+          list = shuffle(this.sequenceList)
+        } else {
+          list = this.sequenceList
+        }
+
+        // 重置当前歌曲的索引为在新的列表中的索引
+        this._resetCurrentIndex(list)
+
+        // 注意这连个的顺序问题
+
+        // 重置播放列表
+        this.setPlayList(list)
+      },
+
+      // 重置歌曲在新列表中的索引
+      _resetCurrentIndex (list) {
+        let newIndex = list.findIndex((value) => {
+          return value.id === this.currentSong.id
+        })
+        this.setCurrentIndex(newIndex)
       },
 
       // 动画钩子函数
@@ -390,7 +420,11 @@
     },
 
     watch: {
-      currentSong () {
+      currentSong (newSong, oldSong) {
+        // 解决暂停状态下切换播放模式自动播放的bug
+        if (newSong.id === oldSong.id) {
+          return
+        }
         // 监听数据变化要保证dom已经渲染了
         this.$nextTick(() => {
           this.$refs.audio.play()

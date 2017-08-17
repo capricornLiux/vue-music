@@ -112,7 +112,9 @@
 
         <!--播放按钮-->
         <div class="control">
-          <i :class="miniIcon" @click.stop="togglePlaying"></i>
+          <progress-circle :radius="32" :percent="percent">
+            <i :class="miniIcon" @click.stop="togglePlaying" class="icon-mini"></i>
+          </progress-circle>
         </div>
 
         <!--展开歌单-->
@@ -138,11 +140,13 @@
 
   import ProgressBar from 'base/progress-bar/progress-bar'
 
+  import ProgressCircle from 'base/progress-circle/progress-circle'
   const transform = prefixStyle('transform')
 
   export default {
     components: {
-      ProgressBar
+      ProgressBar,
+      ProgressCircle
     },
     data () {
       return {

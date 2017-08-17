@@ -2,7 +2,8 @@
   <div class="progress-bar" ref="progressBar">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
-      <div class="progress-btn-wrapper" ref="progressBtn">
+      <div class="progress-btn-wrapper" ref="progressBtn" @touchstart.prevent="progressTouchStart" @touchmove.prevent="progressTouchMove" @touchend="progressTouchEnd">
+        <!--阻止浏览器的默认行为-->
         <div class="progress-btn"></div>
       </div>
     </div>
@@ -10,7 +11,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-//  const progressBtnWidth = 16
+  const progressBtnWidth = 16
   import {prefixStyle} from 'common/js/dom'
   const transfrom = prefixStyle('transform')
   export default {
@@ -20,15 +21,62 @@
         default: 0
       }
     },
+
     watch: {
+      // 监听父组件传递的percent
       percent (newValue) {
-        if (newValue >= 0) {
-//          const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
-          const barWidth = this.$refs.progressBar.clientWidth
+        if (newValue >= 0 && !this.touch.initialted) {
+          const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
           const offsetWidth = newValue * barWidth
-          this.$refs.progress.style.width = `${offsetWidth}px`
-          this.$refs.progressBtn.style[transfrom] = `translate3d(${offsetWidth}px,0,0)`
+          this._offset(offsetWidth)
         }
+      }
+    },
+
+    created () {
+      // 不同的函数共享数据使用
+      this.touch = {}
+    },
+
+    methods: {
+      // 开始拖动滚动条
+      progressTouchStart (e) {
+        // 是否在拖动状态
+        this.touch.initialted = true
+        this.touch.startX = e.touches[0].pageX
+        this.touch.left = this.$refs.progress.clientWidth
+      },
+
+      // 按住移动
+      progressTouchMove (e) {
+        if (!this.touch.initialted) {
+          return
+        }
+        const deltaX = e.touches[0].pageX - this.touch.startX
+        const offsetWidth = Math.min(Math.max(0, this.touch.left + deltaX), this.$refs.progressBar.clientWidth - progressBtnWidth) // 防止拖动过长
+        this._offset(offsetWidth)
+      },
+
+      // 手指抬起
+      progressTouchEnd (e) {
+        this.touch.initialted = false
+        this._triggerPercent()
+      },
+
+      _triggerPercent () {
+        const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
+        const percent = this.$refs.progress.clientWidth / barWidth
+        this.$emit('percentChange', percent)
+      },
+
+      /**
+       * 设置进度条和btn
+       * @param offsetWidth
+       * @private
+       */
+      _offset (offsetWidth) {
+        this.$refs.progress.style.width = `${offsetWidth}px`
+        this.$refs.progressBtn.style[transfrom] = `translate3d(${offsetWidth}px,0,0)`
       }
     }
   }

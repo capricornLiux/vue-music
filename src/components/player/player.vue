@@ -50,7 +50,7 @@
 
             <!--进度条-->
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent"></progress-bar>
+              <progress-bar :percent="percent" @percentChange="percentChange"></progress-bar>
             </div>
 
             <!--右侧总时长-->
@@ -253,7 +253,6 @@
       // audio派发的时间
       updateTime (e) {
         // e.target.currentTime是一个可以读写的属性
-        console.log(e.target.currentTime)
         this.currentTime = e.target.currentTime
       },
 
@@ -270,6 +269,16 @@
           return '0' + num
         }
         return num
+      },
+
+      // 监听到子组件的拖动事件调用
+      percentChange (percent) {
+        // 需要操作audio的currenttime
+        this.$refs.audio.currentTime = percent * this.currentSong.duration
+        // 如果歌曲是暂停状态, 拖动进度条之后也会自动播放
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       },
 
       // 动画钩子函数

@@ -54,18 +54,18 @@
             </div>
 
             <!--上一首-->
-            <div class="icon i-left">
-              <i class="icon-prev"></i>
+            <div class="icon i-left" :class="disableClass">
+              <i class="icon-prev" @click="prev"></i>
             </div>
 
             <!--暂停/开始-->
-            <div class="icon i-center">
+            <div class="icon i-center" :class="disableClass">
               <i :class="playIcon" @click="togglePlaying"></i>
             </div>
 
             <!--下一首-->
-            <div class="icon i-right">
-              <i class="icon-next"></i>
+            <div class="icon i-right" :class="disableClass">
+              <i class="icon-next" @click="next"></i>
             </div>
 
             <div class="icon i-right">
@@ -111,7 +111,7 @@
     <!--底部播放-->
 
     <!--使用HTML5的audio标签播放-->
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error"></audio>
   </div>
 
 </template>
@@ -126,38 +126,103 @@
   const transform = prefixStyle('transform')
 
   export default {
+    data () {
+      return {
+        // 歌曲是否缓冲完可以播放
+        songReady: false
+      }
+    },
     computed: {
+      // 获取vuex store.state中的状态数据
       ...mapGetters([
         'fullScreen',
         'playList',
         'currentSong',
-        'playing'
+        'playing',
+        'currentIndex'
       ]),
+      // 根据playing定义播放按钮图标
       playIcon () {
         return this.playing ? 'icon-pause' : 'icon-play'
       },
       miniIcon () {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
       },
+      // 根据playing定义cd是否旋转
       cdClass () {
         return this.playing ? 'play' : 'play pause'
+      },
+      // 不能点击的时候置灰
+      disableClass () {
+        return this.songReady ? '' : 'disable'
       }
     },
 
     methods: {
+      // 全屏播放器点击返回按钮
       back () {
         this.setFullScreen(false)
       },
+      // 底部播放器点击显示全屏播放器
       fullScreenPlayer () {
         this.setFullScreen(true)
       },
+      // 映射mutation
       ...mapMutations({
         setFullScreen: 'SET_FULLSCREEN',
-        setPlayingState: 'SET_PLAYING_STATE'
+        setPlayingState: 'SET_PLAYING_STATE',
+        setCurrentIndex: 'SET_CURRENTINDEX'
       }),
 
+      // 点击暂停/开始按钮
       togglePlaying () {
+        if (!this.songReady) {
+          return
+        }
         this.setPlayingState(!this.playing)
+        this.songReady = false
+      },
+
+      // 下一首
+      next () {
+        if (!this.songReady) {
+          return
+        }
+        let index = this.currentIndex + 1
+        if (index === this.playList.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+        this.songReady = false
+      },
+
+      // 上一首
+      prev () {
+        if (!this.songReady) {
+          return
+        }
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playList.length - 1
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+        this.songReady = false
+      },
+
+      // 缓冲到可以播放
+      canPlay () {
+        this.songReady = true
+      },
+
+      error () {
+        // 保证歌曲播放错误的时候也能正常切换歌曲
+        this.songReady = true
       },
 
       // 动画钩子函数

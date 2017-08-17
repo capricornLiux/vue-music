@@ -43,6 +43,19 @@
         <div class="bottom">
 
           <!--进度条-->
+          <div class="progress-wrapper">
+
+            <!--左侧已播放时长-->
+            <span class="time time-l">{{format(currentTime)}}</span>
+
+            <!--进度条-->
+            <div class="progress-bar-wrapper">
+
+            </div>
+
+            <!--右侧总时长-->
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <!--进度条结束-->
 
           <!--上下首-->
@@ -111,7 +124,7 @@
     <!--底部播放-->
 
     <!--使用HTML5的audio标签播放-->
-    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error" @timeupdate="updateTime"></audio>
   </div>
 
 </template>
@@ -129,7 +142,10 @@
     data () {
       return {
         // 歌曲是否缓冲完可以播放
-        songReady: false
+        songReady: false,
+
+        // 当前播放时间
+        currentTime: 0
       }
     },
     computed: {
@@ -167,6 +183,7 @@
       fullScreenPlayer () {
         this.setFullScreen(true)
       },
+
       // 映射mutation
       ...mapMutations({
         setFullScreen: 'SET_FULLSCREEN',
@@ -180,7 +197,6 @@
           return
         }
         this.setPlayingState(!this.playing)
-        this.songReady = false
       },
 
       // 下一首
@@ -223,6 +239,28 @@
       error () {
         // 保证歌曲播放错误的时候也能正常切换歌曲
         this.songReady = true
+      },
+
+      // audio派发的时间
+      updateTime (e) {
+        // e.target.currentTime是一个可以读写的属性
+        console.log(e.target.currentTime)
+        this.currentTime = e.target.currentTime
+      },
+
+      format (interval) {
+        interval = interval | 0
+        const minute = interval / 60 | 0
+        const second = this._pad(interval % 60)
+        return `${minute}:${second}`
+      },
+
+      _pad (num) {
+        let len = num.toString().length
+        if (len === 1) {
+          return '0' + num
+        }
+        return num
       },
 
       // 动画钩子函数

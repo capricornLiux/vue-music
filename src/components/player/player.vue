@@ -63,7 +63,7 @@
 
             <!--播放模式-->
             <div class="icon i-left">
-              <i class="icon-sequence"></i>
+              <i :class="iconMode" @click="changePlayMode"></i>
             </div>
 
             <!--上一首-->
@@ -141,6 +141,9 @@
   import ProgressBar from 'base/progress-bar/progress-bar'
 
   import ProgressCircle from 'base/progress-circle/progress-circle'
+
+  import {playMode} from 'common/js/config'
+
   const transform = prefixStyle('transform')
 
   export default {
@@ -164,7 +167,8 @@
         'playList',
         'currentSong',
         'playing',
-        'currentIndex'
+        'currentIndex',
+        'mode'
       ]),
       // 根据playing定义播放按钮图标
       playIcon () {
@@ -184,6 +188,9 @@
       // 歌曲播放的百分比
       percent () {
         return this.currentTime / this.currentSong.duration
+      },
+      iconMode () {
+        return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
       }
     },
 
@@ -201,7 +208,8 @@
       ...mapMutations({
         setFullScreen: 'SET_FULLSCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
-        setCurrentIndex: 'SET_CURRENTINDEX'
+        setCurrentIndex: 'SET_CURRENTINDEX',
+        setPlayMode: 'SET_PLAYMODE'
       }),
 
       // 点击暂停/开始按钮
@@ -283,6 +291,12 @@
         if (!this.playing) {
           this.togglePlaying()
         }
+      },
+
+      // 改变播放模式
+      changePlayMode () {
+        const mode = (this.mode + 1) % 3
+        this.setPlayMode(mode)
       },
 
       // 动画钩子函数

@@ -445,6 +445,7 @@
         // 监听数据变化要保证dom已经渲染了
         this.$nextTick(() => {
           this.$refs.audio.play()
+          this.currentSong.getLyric()
         })
       },
 

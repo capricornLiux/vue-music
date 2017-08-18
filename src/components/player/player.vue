@@ -126,7 +126,7 @@
     <!--底部播放-->
 
     <!--使用HTML5的audio标签播放-->
-    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error" @timeupdate="updateTime"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 
 </template>
@@ -202,6 +202,7 @@
       back () {
         this.setFullScreen(false)
       },
+
       // 底部播放器点击显示全屏播放器
       fullScreenPlayer () {
         this.setFullScreen(true)
@@ -327,6 +328,22 @@
           return value.id === this.currentSong.id
         })
         this.setCurrentIndex(newIndex)
+      },
+
+      // 当前歌曲播放完的时候调用
+      end () {
+        // 判断模式
+        if (this.mode === playMode.loop) {
+          this.loop()
+        } else {
+          this.next()
+        }
+      },
+
+      // 单曲循环
+      loop () {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
       },
 
       // 动画钩子函数

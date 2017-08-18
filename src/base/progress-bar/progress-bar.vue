@@ -65,6 +65,10 @@
 
       progressClick (e) {
         // e.offsetX为点击的位置到dom左边的距离
+        if (e.target.getAttribute('class') === 'progress-btn') {
+          return
+        }
+
         this._offset(e.offsetX)
         this._triggerPercent()
       },

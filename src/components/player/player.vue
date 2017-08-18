@@ -28,7 +28,11 @@
         <!--顶部结束-->
 
         <!--中部-->
-        <div class="middle">
+        <div class="middle"
+             @touchstart.prevent="middleTouchStart"
+             @touchmove.prevent="middleTouchMove"
+             @touchend="middleTouchEnd"
+        >
 
           <!--歌曲cd-->
           <div class="middle-l">
@@ -58,6 +62,13 @@
 
         <!--底部操作区-->
         <div class="bottom">
+
+          <!--dot-->
+          <div class="dot-wrapper">
+            <span class="dot" :class="{'active': currentShow === 'cd'}"></span>
+            <span class="dot" :class="{'active': currentShow === 'lyric'}"></span>
+          </div>
+          <!--dot结束-->
 
           <!--进度条-->
           <div class="progress-wrapper">
@@ -188,8 +199,15 @@
         currentLyric: null,
 
         // 当前歌词的行数
-        currentLineNum: 0
+        currentLineNum: 0,
+
+        // 当前页
+        currentShow: 'cd'
       }
+    },
+
+    created () {
+      this.touch = {}
     },
 
     computed: {
@@ -397,6 +415,38 @@
         } else {
           this.$refs.lyricList.scrollToElement(0, 0, 1000)
         }
+      },
+
+      // middle滑动的时候调用
+      middleTouchStart (e) {
+        this.touch.init = true
+        const touch = e.touches[0]
+        this.touch.startX = touch.pageX
+        this.touch.startY = touch.pageY
+      },
+
+      middleTouchMove (e) {
+        if (!this.touch.init) {
+          return
+        }
+        const touch = e.touches[0]
+        const deltaX = touch.pageX - this.touch.startX // 左滑为负
+        const deltaY = touch.pageY - this.touch.startY
+
+        // 纵轴的偏移如果大于横轴的偏移, 横向不懂, 滚动歌词
+        if (Math.abs(deltaY) > Math.abs(deltaX)) {
+          // 纵向滚动
+          return
+        }
+        // 歌词需要偏移的位置
+        const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
+        const width = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+        // lyricList是封装的scroll Vue组件, 不能直接.style设置属性, 需要使用$el
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${width}px, 0, 0)`
+      },
+
+      middleTouchEnd (e) {
+
       },
 
       // 动画钩子函数

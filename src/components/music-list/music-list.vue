@@ -12,9 +12,10 @@
 
     <!--歌手头图-->
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      <!--播放当前歌单的按钮-->
+
+      <!--随机播放当前歌单的按钮-->
       <div class="play-wrapper">
-        <div class="play" v-show="songs.length>0" ref="playBtn">
+        <div class="play" v-show="songs.length>0" ref="playBtn" @click="randomPlayCurrentList">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -111,7 +112,8 @@
        * 代理actions,通过vuex的语法糖, 将actions封装为类似可以调用的方法
        */
       ...mapActions([
-        'selectPlay'
+        'selectPlay',
+        'randomPlay'
       ]),
 
       // 滚动的时候调用
@@ -122,6 +124,14 @@
       // 返回上一页
       back () {
         this.$router.back()
+      },
+
+      // 随机播放当前歌单
+      randomPlayCurrentList () {
+//        console.log(888)
+        this.randomPlay({
+          list: this.songs
+        })
       }
     },
     data () {

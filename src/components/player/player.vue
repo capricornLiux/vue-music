@@ -29,6 +29,8 @@
 
         <!--中部-->
         <div class="middle">
+
+          <!--歌曲cd-->
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdClass">
@@ -36,6 +38,21 @@
               </div>
             </div>
           </div>
+          <!--歌曲cd结束-->
+
+          <!--歌词-->
+          <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <p ref="lyricLine"
+                   class="text"
+                   :class="{'current':currentLineNum === index}"
+                   v-for="(line, index) in currentLyric.lines">{{line.txt}}</p>
+              </div>
+            </div>
+          </scroll>
+          <!--歌词结束-->
+
         </div>
         <!--中部结束-->
 
@@ -148,13 +165,17 @@
 
   import Lyric from 'lyric-parser'
 
+  import Scroll from 'base/scroll/scroll'
+
   const transform = prefixStyle('transform')
 
   export default {
     components: {
       ProgressBar,
-      ProgressCircle
+      ProgressCircle,
+      Scroll
     },
+
     data () {
       return {
         // 歌曲是否缓冲完可以播放
@@ -164,9 +185,13 @@
         currentTime: 0,
 
         // 当前歌词
-        currentLyric: null
+        currentLyric: null,
+
+        // 当前歌词的行数
+        currentLineNum: 0
       }
     },
+
     computed: {
       // 获取vuex store.state中的状态数据
       ...mapGetters([
@@ -351,12 +376,27 @@
         this.$refs.audio.play()
       },
 
+      // 获取歌词
       getLyric () {
         this.currentSong.getLyric().then((lyric) => {
           // 解析
-          this.currentLyric = new Lyric(lyric)
-          console.log(this.currentLyric)
+          this.currentLyric = new Lyric(lyric, this.handleLyric)
+          if (this.playing) {
+            this.currentLyric.play()
+          }
         })
+      },
+
+      // 当歌词发生改变的时候进行调用
+      handleLyric ({lineNum, txt}) {
+        // 让当前的歌词高亮显示
+        this.currentLineNum = lineNum
+        if (this.currentLineNum > 5) {
+          let el = this.$refs.lyricLine[this.currentLineNum - 5]
+          this.$refs.lyricList.scrollToElement(el, 1000)
+        } else {
+          this.$refs.lyricList.scrollToElement(0, 0, 1000)
+        }
       },
 
       // 动画钩子函数

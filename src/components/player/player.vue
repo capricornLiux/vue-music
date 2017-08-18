@@ -146,6 +146,8 @@
 
   import {shuffle} from 'common/js/util'
 
+  import Lyric from 'lyric-parser'
+
   const transform = prefixStyle('transform')
 
   export default {
@@ -159,7 +161,10 @@
         songReady: false,
 
         // 当前播放时间
-        currentTime: 0
+        currentTime: 0,
+
+        // 当前歌词
+        currentLyric: null
       }
     },
     computed: {
@@ -346,6 +351,14 @@
         this.$refs.audio.play()
       },
 
+      getLyric () {
+        this.currentSong.getLyric().then((lyric) => {
+          // 解析
+          this.currentLyric = new Lyric(lyric)
+          console.log(this.currentLyric)
+        })
+      },
+
       // 动画钩子函数
       /**
        * enter钩子函数
@@ -445,7 +458,8 @@
         // 监听数据变化要保证dom已经渲染了
         this.$nextTick(() => {
           this.$refs.audio.play()
-          this.currentSong.getLyric()
+//          this.currentSong.getLyric()
+          this.getLyric()
         })
       },
 

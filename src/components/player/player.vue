@@ -31,11 +31,11 @@
         <div class="middle"
              @touchstart.prevent="middleTouchStart"
              @touchmove.prevent="middleTouchMove"
-             @touchend="middleTouchEnd"
+             @touchend.prevent="middleTouchEnd"
         >
 
           <!--歌曲cd-->
-          <div class="middle-l">
+          <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdClass">
                 <img :src="currentSong.image" alt="" class="image">
@@ -179,6 +179,8 @@
   import Scroll from 'base/scroll/scroll'
 
   const transform = prefixStyle('transform')
+  const transitionDuration = prefixStyle('transitionDuration')
+  const transitionTimingFunction = prefixStyle('transitionTimingFunction')
 
   export default {
     components: {
@@ -419,6 +421,8 @@
 
       // middle滑动的时候调用
       middleTouchStart (e) {
+//        console.log(e)
+//        console.log(888)
         this.touch.init = true
         const touch = e.touches[0]
         this.touch.startX = touch.pageX
@@ -433,6 +437,9 @@
         const deltaX = touch.pageX - this.touch.startX // 左滑为负
         const deltaY = touch.pageY - this.touch.startY
 
+        console.log(deltaX)
+        console.log(deltaY)
+
         // 纵轴的偏移如果大于横轴的偏移, 横向不懂, 滚动歌词
         if (Math.abs(deltaY) > Math.abs(deltaX)) {
           // 纵向滚动
@@ -440,13 +447,45 @@
         }
         // 歌词需要偏移的位置
         const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
-        const width = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+        // 歌词列表偏移的距离
+        const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+        // 歌词列表偏移的距离占屏幕比
+        this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
         // lyricList是封装的scroll Vue组件, 不能直接.style设置属性, 需要使用$el
-        this.$refs.lyricList.$el.style[transform] = `translate3d(${width}px, 0, 0)`
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
+        this.$refs.middleL.style.opacity = 1 - this.touch.percent
+        this.$refs.lyricList.$el.style[transitionDuration] = 0
       },
 
       middleTouchEnd (e) {
-
+        // 决定歌词列表的位置
+        let offsetWidth
+        let opacity
+        console.log(this.touch.percent)
+        if (this.currentShow === 'cd') {
+          if (this.touch.percent > 0.1) {
+            offsetWidth = -window.innerWidth
+            this.currentShow = 'lyric'
+            opacity = 0
+          } else {
+            offsetWidth = 0
+            opacity = 1
+          }
+        } else {
+          if (this.touch.percent < 0.9) {
+            offsetWidth = 0
+            this.currentShow = 'cd'
+            opacity = 1
+          } else {
+            offsetWidth = -window.innerWidth
+            opacity = 0
+          }
+        }
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px, 0, 0)`
+        this.$refs.lyricList.$el.style[transitionDuration] = `1s`
+        this.$refs.lyricList.$el.style[transitionTimingFunction] = `ease`
+        this.$refs.middleL.style.opacity = opacity
+        this.$refs.middleL.style[transitionDuration] = `1s`
       },
 
       // 动画钩子函数

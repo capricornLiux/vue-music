@@ -13,7 +13,8 @@ const state = {
   currentIndex: -1, // 当前播放的索引
   // 不需要currentSong, 歌曲计算而来
 
-  disc: {} // 歌单对象
+  disc: {}, // 歌单对象
+  topList: [] // 排行榜总体列表
 }
 
 export default state

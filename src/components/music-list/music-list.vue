@@ -31,7 +31,7 @@
     <!--使用scroll包装歌曲列表组件-->
     <scroll :data="songs" class="list" ref="list" :probe-type="probeType" :listen-scroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
-        <song-list :songs="songs" @selectItem="selectItem"></song-list>
+        <song-list :songs="songs" @selectItem="selectItem" :isRank="isRank"></song-list>
       </div>
 
       <!--loading-->
@@ -87,6 +87,10 @@
       title: {
         type: String,
         default: ''
+      },
+      isRank: {
+        type: Boolean,
+        default: false
       }
     },
     computed: {

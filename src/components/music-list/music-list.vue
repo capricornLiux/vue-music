@@ -57,6 +57,8 @@
   // 使用mapActions
   import {mapActions} from 'vuex'
 
+  import {playListMixin} from 'common/js/mixin'
+
   const transform = prefixStyle('transform')
   const backdrop = prefixStyle('backdrop-filter')
 
@@ -64,6 +66,10 @@
   const RESERVED_HEIGHT = 40
 
   export default {
+    mixins: [
+      playListMixin
+      // 组件和mixin方法进行merge, 组件中的方法会覆盖掉mixin中的方法
+    ],
     components: {
       Scroll,
       SongList,
@@ -128,10 +134,16 @@
 
       // 随机播放当前歌单
       randomPlayCurrentList () {
-//        console.log(888)
         this.randomPlay({
           list: this.songs
         })
+      },
+
+      // mixin中的方法
+      handlePlayList (playList) {
+        const bottom = playList.length > 0 ? '60px' : ''
+        this.$refs.list.$el.style.bottom = bottom
+        this.$refs.list.refresh()
       }
     },
     data () {

@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <scroll class="recommend-content" :data="discList" ref="scroll">
 
       <!--better-scroll的子元素只有第一个才能滚动, 所以要将下面的两个子元素div合并为一个-->
@@ -70,8 +70,13 @@
 
   import Loading from 'base/loading/loading.vue'
 
+  import {playListMixin} from 'common/js/mixin'
+
   export default {
 
+    mixins: [
+      playListMixin
+    ],
     data () {
       return {
         recommends: [],
@@ -120,6 +125,12 @@
           this.checkloaded = true
           this.$refs.scroll.refresh()
         }
+      },
+
+      handlePlayList (playList) {
+        const bottom = playList.length > 0 ? '60px' : ''
+        this.$refs.recommend.style.bottom = bottom
+        this.$refs.scroll.refresh()
       }
     }
   }

@@ -1,7 +1,7 @@
 <template>
-  <div class="singer">
+  <div class="singer" ref="singer">
     <!--使用listview展示歌手列表-->
-    <list-view :data="singerList" @clickSingerList="clickSingerList"></list-view>
+    <list-view :data="singerList" @clickSingerList="clickSingerList" ref="list"></list-view>
     <!--使用listview展示歌手列表结束-->
 
     <router-view></router-view>
@@ -19,10 +19,16 @@
   // 导入vuex的语法糖, 在methods属性最后, 通过拓展运算符的方式调用, 做一个对象映射, mutations的修改映射为一个方法名
   import {mapMutations} from 'vuex'
 
+  import {playListMixin} from 'common/js/mixin'
+
   const HOT_NAME = '热门'
   const HOT_SINGER_LEN = 10
 
   export default {
+
+    mixins: [
+      playListMixin
+    ],
 
     components: {
       ListView
@@ -119,7 +125,13 @@
       // 使用mutaions的语法糖
       ...mapMutations({
         setSinger: 'SET_SINGER'
-      })
+      }),
+
+      handlePlayList (playList) {
+        const bottom = playList.length > 0 ? '60px' : ''
+        this.$refs.singer.style.bottom = bottom
+        this.$refs.list.refresh()
+      }
     }
   }
 </script>

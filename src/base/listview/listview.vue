@@ -254,6 +254,11 @@
           height += item.clientHeight
           this.listHeight.push(height)
         }
+      },
+
+      // 暴露scroll刷新的方法给外界调用
+      refresh () {
+        this.$refs.listview.refresh()
       }
     }
   }

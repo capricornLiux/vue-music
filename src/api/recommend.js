@@ -43,3 +43,45 @@ export function getDiscList () {
     return Promise.resolve(res.data)
   })
 }
+
+export function getDiscSongList (dissid) {
+  const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+
+  /*
+   * type:1
+   json:1
+   utf8:1
+   onlysong:0
+   disstid:1772331184
+   format:jsonp
+   g_tk:5381
+   jsonpCallback:playlistinfoCallback
+   loginUin:0
+   hostUin:0
+   format:jsonp
+   inCharset:utf8
+   outCharset:utf-8
+   notice:0
+   platform:yqq
+   needNewCode:0
+   * */
+  const data = Object.assign({}, commonParams, {
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 0,
+    disstid: dissid,
+    // g_tk: 1308511924,
+    loginUin: 0,
+    hostUin: 0,
+    platform: 'yqq',
+    needNewCode: 0
+  })
+
+  const options = {
+    param: 'jsonpCallback',
+    prefix: 'playlistinfoCallback'
+  }
+
+  return jsonp(url, data, options)
+}

@@ -41,6 +41,12 @@
                 <img :src="currentSong.image" alt="" class="image">
               </div>
             </div>
+
+            <!--单行歌词-->
+            <div class="playing-lyric-wrapper">
+              <div class="playing-lyric">{{playingLyric}}</div>
+            </div>
+            <!--单行歌词结束-->
           </div>
           <!--歌曲cd结束-->
 
@@ -154,7 +160,8 @@
     <!--底部播放-->
 
     <!--使用HTML5的audio标签播放-->
-    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error" @timeupdate="updateTime" @ended="end"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="canPlay" @error="error" @timeupdate="updateTime"
+           @ended="end"></audio>
   </div>
 
 </template>
@@ -204,7 +211,10 @@
         currentLineNum: 0,
 
         // 当前页
-        currentShow: 'cd'
+        currentShow: 'cd',
+
+        // 当前单句歌词
+        playingLyric: null
       }
     },
 
@@ -242,6 +252,7 @@
       percent () {
         return this.currentTime / this.currentSong.duration
       },
+      // 播放模式
       iconMode () {
         return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
       }
@@ -273,6 +284,10 @@
           return
         }
         this.setPlayingState(!this.playing)
+        // 暂停歌词播放
+        if (this.currentLyric) {
+          this.currentLyric.togglePlay()
+        }
       },
 
       // 下一首
@@ -280,13 +295,18 @@
         if (!this.songReady) {
           return
         }
-        let index = this.currentIndex + 1
-        if (index === this.playList.length) {
-          index = 0
-        }
-        this.setCurrentIndex(index)
-        if (!this.playing) {
-          this.togglePlaying()
+        // 如果列表只有一首歌, index还是等于0, currentSong不会发生变化, id不变return,后面就不会播放了
+        if (this.playList.length === 1) {
+          this.loop()
+        } else {
+          let index = this.currentIndex + 1
+          if (index === this.playList.length) {
+            index = 0
+          }
+          this.setCurrentIndex(index)
+          if (!this.playing) {
+            this.togglePlaying()
+          }
         }
         this.songReady = false
       },
@@ -296,13 +316,17 @@
         if (!this.songReady) {
           return
         }
-        let index = this.currentIndex - 1
-        if (index === -1) {
-          index = this.playList.length - 1
-        }
-        this.setCurrentIndex(index)
-        if (!this.playing) {
-          this.togglePlaying()
+        if (this.playList.length === 1) {
+          this.loop()
+        } else {
+          let index = this.currentIndex - 1
+          if (index === -1) {
+            index = this.playList.length - 1
+          }
+          this.setCurrentIndex(index)
+          if (!this.playing) {
+            this.togglePlaying()
+          }
         }
         this.songReady = false
       },
@@ -340,11 +364,16 @@
 
       // 监听到子组件的拖动事件调用
       percentChange (percent) {
+        const currentTime = percent * this.currentSong.duration
+        console.log(currentTime)
         // 需要操作audio的currenttime
         this.$refs.audio.currentTime = percent * this.currentSong.duration
         // 如果歌曲是暂停状态, 拖动进度条之后也会自动播放
         if (!this.playing) {
           this.togglePlaying()
+        }
+        if (this.currentLyric) {
+          this.currentLyric.seek(currentTime * 1000)
         }
       },
 
@@ -394,6 +423,10 @@
       loop () {
         this.$refs.audio.currentTime = 0
         this.$refs.audio.play()
+        // 将歌词偏移到开始
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
       },
 
       // 获取歌词
@@ -404,6 +437,11 @@
           if (this.playing) {
             this.currentLyric.play()
           }
+        }).catch(() => {
+          // 歌词加载失败, 做一些清理操作
+          this.currentLyric = null
+          this.playingLyric = ''
+          this.currentLineNum = 0
         })
       },
 
@@ -417,12 +455,12 @@
         } else {
           this.$refs.lyricList.scrollToElement(0, 0, 1000)
         }
+        // 设置当前单句歌词
+        this.playingLyric = txt
       },
 
       // middle滑动的时候调用
       middleTouchStart (e) {
-//        console.log(e)
-//        console.log(888)
         this.touch.init = true
         const touch = e.touches[0]
         this.touch.startX = touch.pageX
@@ -436,9 +474,6 @@
         const touch = e.touches[0]
         const deltaX = touch.pageX - this.touch.startX // 左滑为负
         const deltaY = touch.pageY - this.touch.startY
-
-        console.log(deltaX)
-        console.log(deltaY)
 
         // 纵轴的偏移如果大于横轴的偏移, 横向不懂, 滚动歌词
         if (Math.abs(deltaY) > Math.abs(deltaX)) {
@@ -461,7 +496,6 @@
         // 决定歌词列表的位置
         let offsetWidth
         let opacity
-        console.log(this.touch.percent)
         if (this.currentShow === 'cd') {
           if (this.touch.percent > 0.1) {
             offsetWidth = -window.innerWidth
@@ -488,7 +522,7 @@
         this.$refs.middleL.style[transitionDuration] = `1s`
       },
 
-      // 动画钩子函数
+      // 动画钩子函数--------------------------------------------------------------
       /**
        * enter钩子函数
        * @param el 操作的dom元素
@@ -583,6 +617,9 @@
         // 解决暂停状态下切换播放模式自动播放的bug
         if (newSong.id === oldSong.id) {
           return
+        }
+        if (this.currentLyric) {
+          this.currentLyric.stop()
         }
         // 监听数据变化要保证dom已经渲染了
         this.$nextTick(() => {

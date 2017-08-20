@@ -22,6 +22,9 @@
     methods: {
       clearQuery () {
         this.query = ''
+      },
+      setQuery (query) {
+        this.query = query
       }
     },
     created () {

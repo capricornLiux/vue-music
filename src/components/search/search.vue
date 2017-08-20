@@ -1,8 +1,29 @@
 <template>
   <div class="search">
+
+    <!--搜索框-->
     <div class="search-box-wrapper">
-      <search-box></search-box>
+      <search-box ref="searchBox"></search-box>
     </div>
+    <!--搜索框结束-->
+
+    <!--热门搜索关键词-->
+    <div class="shortcut-wrapper">
+      <div class="shortcut">
+        <div class="hot-key">
+          <h1 class="title">热门搜索</h1>
+          <ul>
+            <li class="item" v-for="item in hotKey" @click="clickHotKeyItem(item)">
+              <span>{{item.k}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--热门搜索关键词结束-->
+
+
+
 
   </div>
 
@@ -10,9 +31,33 @@
 
 <script type="text/ecmascript-6">
   import SearchBox from 'base/search-box/search-box'
+  import {getHotKey} from 'api/search'
+  import {ERR_OK} from 'api/config'
   export default {
     components: {
       SearchBox
+    },
+    data () {
+      return {
+        // 关键词结果集
+        hotKey: []
+      }
+    },
+    created () {
+      this._getHotKey()
+    },
+    methods: {
+      _getHotKey () {
+        getHotKey().then((res) => {
+          if (res.code === ERR_OK) {
+            console.log(res)
+            this.hotKey = res.data.hotkey.slice(0, 10)
+          }
+        })
+      },
+      clickHotKeyItem (item) {
+        this.$refs.searchBox.setQuery(item.k)
+      }
     }
   }
 </script>

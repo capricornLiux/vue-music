@@ -3,12 +3,12 @@
 
     <!--搜索框-->
     <div class="search-box-wrapper">
-      <search-box ref="searchBox"></search-box>
+      <search-box ref="searchBox" @queryChange="onSearchBoxChange"></search-box>
     </div>
     <!--搜索框结束-->
 
     <!--热门搜索关键词-->
-    <div class="shortcut-wrapper">
+    <div class="shortcut-wrapper" v-show="!query.length">
       <div class="shortcut">
         <div class="hot-key">
           <h1 class="title">热门搜索</h1>
@@ -22,6 +22,7 @@
     </div>
     <!--热门搜索关键词结束-->
 
+    <suggest :query="this.query" v-show="query.length"></suggest>
 
 
 
@@ -33,14 +34,17 @@
   import SearchBox from 'base/search-box/search-box'
   import {getHotKey} from 'api/search'
   import {ERR_OK} from 'api/config'
+  import Suggest from 'components/suggest/suggest'
   export default {
     components: {
-      SearchBox
+      SearchBox,
+      Suggest
     },
     data () {
       return {
         // 关键词结果集
-        hotKey: []
+        hotKey: [],
+        query: ''
       }
     },
     created () {
@@ -57,6 +61,10 @@
       },
       clickHotKeyItem (item) {
         this.$refs.searchBox.setQuery(item.k)
+      },
+      onSearchBoxChange (newValue) {
+//        console.log(newValue)
+        this.query = newValue
       }
     }
   }

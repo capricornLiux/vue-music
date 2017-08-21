@@ -13,7 +13,7 @@
             <!--放在插槽中的内容-->
             <div v-for="item in recommends">
               <!--遍历轮播图的数据-->
-              <a href="item.linkUrl">
+              <a :href="item.linkUrl">
                 <img :src="item.picUrl" alt="" @load="loadImg" class="needsclick">
               </a>
               <!--遍历轮播图的数据结束-->

@@ -1,5 +1,5 @@
 <template>
-  <div class="suggest">
+  <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" ref="suggest">
     <ul class="suggest-list">
       <li class="suggest-item" v-for="item in result">
         <!--歌曲或者歌手图标-->
@@ -13,23 +13,32 @@
         </div>
       </li>
     </ul>
-  </div>
+  </scroll>
 </template>
 
 <script type="text/ecmascript-6">
   import {getSearchResult} from 'api/search'
   import {ERR_OK} from 'api/config'
-  import {filtersinger} from 'common/js/song'
+  import {createSong} from 'common/js/song'
+  import Scroll from 'base/scroll/scroll'
 
   const TYPE_SINGER = 'singer'
+  const perpage = 20
 
   export default {
+    components: {
+      Scroll
+    },
     data () {
       return {
         // 搜索页码
         pageNum: 1,
         // 处理过的搜索结果
-        result: []
+        result: [],
+        // 是否滚动刷新
+        pullup: true,
+        // 标识是否还有更多数据, 用来判断是否继续进行数据请求
+        hasMore: true
       }
     },
     props: {
@@ -53,12 +62,18 @@
       }
     },
     methods: {
+      // 同一个关键字第一次请求结果
       search () {
+        this.page = 1
+        this.hasMore = true
+        this.$refs.suggest.scrollTo(0, 0)
         // 请求服务端检索数据
-        getSearchResult(this.query, this.pageNum, this.isSearchSinger).then((res) => {
+        getSearchResult(this.query, this.pageNum, this.isSearchSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
             console.log(res)
             this.result = this._normalizeData(res.data)
+            // 检查
+            this.checkMore(res.data)
           }
         }).catch((error) => {
           console.log(error)
@@ -71,7 +86,7 @@
           ret.push({...data.zhida, ...{type: TYPE_SINGER}})
         }
         if (data.song) {
-          ret = ret.concat(data.song.list)
+          ret = ret.concat(this._normalizeSongs(data.song.list))
         }
 //        console.log(ret)
         return ret
@@ -87,7 +102,40 @@
         if (item.type === TYPE_SINGER) {
           return item.singername
         } else {
-          return `${item.songname}-${filtersinger(item.singer)}`
+          return `${item.name}-${(item.singer)}`
+        }
+      },
+      _normalizeSongs (list) {
+        let ret = []
+        list.forEach((musicData) => {
+          ret.push(createSong(musicData))
+        })
+        return ret
+      },
+      /**
+       * 上拉加载更多
+       */
+      searchMore () {
+        if (!this.hasMore) {
+          alert('没有更多数据了')
+          return
+        }
+        // 有更多数据
+        // 请求数据
+        this.pageNum += 1
+        getSearchResult(this.query, this.pageNum, this.isSearchSinger).then((res) => {
+          if (res.code === ERR_OK) {
+            this.result = this.result.concat(this._normalizeData(res.data))
+            // 检查
+            this.checkMore(res.data)
+          }
+        })
+      },
+      // 检查还有没有更多
+      checkMore (data) {
+        const song = data.song
+        if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
+          this.hasMore = false
         }
       }
     }

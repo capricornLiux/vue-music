@@ -27,6 +27,11 @@
       listenScroll: {
         type: Boolean,
         default: false
+      },
+      // 是否需要上拉刷新
+      pullup: {
+        type: Boolean,
+        default: false
       }
     },
 
@@ -52,6 +57,15 @@
           // 监听滚动事件
           this.scroll.on('scroll', (pos) => {
             self.$emit('scroll', pos)
+          })
+        }
+
+        if (this.pullup) {
+          this.scroll.on('scrollEnd', () => {
+            if (this.scroll.y <= this.scroll.maxScrollY + 50) {
+              // 滚动到底部了,  scroll组件是基础组件, 在合适的时机派发一个事件给外界
+              this.$emit('scrollToEnd')
+            }
           })
         }
       },

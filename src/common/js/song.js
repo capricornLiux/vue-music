@@ -22,7 +22,6 @@ export default class Song {
   getLyric () {
     // 判断是否已经有歌词了
     if (this.lyric) {
-      console.log('yougecile')
       return Promise.resolve(this.lyric)
     }
 

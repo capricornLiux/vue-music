@@ -22,7 +22,10 @@
     </div>
     <!--热门搜索关键词结束-->
 
-    <suggest :query="this.query" v-show="query.length"></suggest>
+    <div class="search-result" v-show="query.length">
+      <suggest :query="this.query"></suggest>
+    </div>
+
 
 
 

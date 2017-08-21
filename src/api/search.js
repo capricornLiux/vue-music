@@ -24,14 +24,14 @@ export function getHotKey () {
  * @param pageNum 搜索结果页数
  * @param isSearchSinger 是否搜索歌手
  */
-export function getSearchResult (keyWord, pageNum, isSearchSinger) {
+export function getSearchResult (keyWord, pageNum, isSearchSinger, perpage) {
   const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
 
   const data = Object.assign({}, commonParams, {
     w: keyWord,
     p: pageNum,
-    // perpage,
-    // n: perpage,
+    perpage,
+    n: perpage,
     catZhida: isSearchSinger ? 1 : 0,
     zhidaqu: 1,
     t: 0,

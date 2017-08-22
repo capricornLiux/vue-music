@@ -12,6 +12,7 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
+      <loading></loading>
     </ul>
   </scroll>
 </template>
@@ -21,13 +22,15 @@
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
+  import Loading from 'base/loading/loading'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20
 
   export default {
     components: {
-      Scroll
+      Scroll,
+      Loading
     },
     data () {
       return {
@@ -70,7 +73,6 @@
         // 请求服务端检索数据
         getSearchResult(this.query, this.pageNum, this.isSearchSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res)
             this.result = this._normalizeData(res.data)
             // 检查
             this.checkMore(res.data)
@@ -88,7 +90,6 @@
         if (data.song) {
           ret = ret.concat(this._normalizeSongs(data.song.list))
         }
-//        console.log(ret)
         return ret
       },
       getIconClass (item) {

@@ -3,6 +3,7 @@
 
     <!--搜索框-->
     <div class="search-box-wrapper">
+      <!--使用search-box组件-->
       <search-box ref="searchBox" @queryChange="onSearchBoxChange"></search-box>
     </div>
     <!--搜索框结束-->
@@ -22,15 +23,14 @@
     </div>
     <!--热门搜索关键词结束-->
 
+    <!--搜索结果-->
     <div class="search-result" v-show="query.length">
+      <!--使用suggest组件-->
       <suggest :query="this.query"></suggest>
     </div>
-
-
-
+    <!--搜索结果结束-->
 
   </div>
-
 </template>
 
 <script type="text/ecmascript-6">
@@ -38,6 +38,7 @@
   import {getHotKey} from 'api/search'
   import {ERR_OK} from 'api/config'
   import Suggest from 'components/suggest/suggest'
+
   export default {
     components: {
       SearchBox,
@@ -54,10 +55,10 @@
       this._getHotKey()
     },
     methods: {
+      // 获取热门搜索关键词
       _getHotKey () {
         getHotKey().then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res)
             this.hotKey = res.data.hotkey.slice(0, 10)
           }
         })
@@ -66,7 +67,6 @@
         this.$refs.searchBox.setQuery(item.k)
       },
       onSearchBoxChange (newValue) {
-//        console.log(newValue)
         this.query = newValue
       }
     }

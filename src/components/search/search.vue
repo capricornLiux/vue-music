@@ -30,6 +30,8 @@
     </div>
     <!--搜索结果结束-->
 
+    <router-view></router-view>
+
   </div>
 </template>
 

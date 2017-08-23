@@ -52,7 +52,14 @@ export default new Router({
     },
     {
       path: '/search',
-      component: Search
+      component: Search,
+      // 点击歌手, 跳转到啊歌手详情页面
+      children: [
+        {
+          path: ':id',
+          component: SingerDetail
+        }
+      ]
     }
   ]
 })

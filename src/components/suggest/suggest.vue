@@ -1,7 +1,7 @@
 <template>
   <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" ref="suggest">
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result">
+      <li class="suggest-item" v-for="item in result" @click="clickResultSinger(item)">
         <!--歌曲或者歌手图标-->
         <div class="icon">
           <i :class="getIconClass(item)"></i>
@@ -23,6 +23,8 @@
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
+  import Singer from 'common/js/singer'
+  import {mapMutations, mapActions} from 'vuex'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20
@@ -138,7 +140,34 @@
         if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
           this.hasMore = false
         }
-      }
+      },
+
+      // 点击歌手
+      clickResultSinger (item) {
+        if (item.type === TYPE_SINGER) {
+          // 跳转路由
+          this.$router.push({
+            path: `/search/${item.singermid}`
+          })
+          const singer = new Singer({
+            id: item.singermid,
+            name: item.singername
+          })
+          this.setSinger(singer)
+        } else {
+          // 提交action
+          this.clickSearchSong(item)
+        }
+      },
+
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      }),
+
+      // 映射actions为一个字符串, 可以在其他方法中直接调用
+      ...mapActions([
+        'clickSearchSong'
+      ])
     }
   }
 </script>
